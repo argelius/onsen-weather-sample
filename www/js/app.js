@@ -3,8 +3,14 @@
 
   angular.module('app', ['onsen'])
 
-  .controller('WeatherController', function($scope, $timeout, $geolocation, $weather) {
-    $scope.cities = [];
+  .controller('AppController', function($scope, $window) {
+    $scope.title = 'Onsen Weather';
+
+    $scope.currentIndex = 0;
+    $scope.places = angular.fromJson($window.localStorage.getItem('places') || '[]');
+  })
+
+  .controller('SearchController', function($scope, $timeout, $window, $geolocation, $weather) {
 
     $scope.$watch('query', function(query) {
       if ($scope.searchTimeout) {
@@ -12,15 +18,36 @@
       }
 
       $scope.searchTimeout = $timeout(function() {
-        $weather.search(query).then(
-          function(data) {
-            $scope.city = data.name + ', ' + data.sys.country;
-          },
-          function(error) {
-          }
-        );
+        (function(query) {
+          $weather.search(query).then(
+            function(data) {
+              $scope.place = data;
+              $scope.place._originalQuery = query;
+            },
+            function(error) {
+            }
+          );
+        })($scope.query);
       }, 200);
     });
+
+    $scope.addPlace = function(place) {
+      for (var i = 0; i < $scope.places.length; i++) {
+        if (place.id === $scope.places[i].id) {
+          ons.notification.alert({
+            message: place.name + ' already added.'
+          });
+          return;
+        }
+      }
+
+      $scope.places.push(place);
+      $window.localStorage.setItem('places', angular.toJson($scope.places));
+    };
+  })
+
+  .controller('WeatherController', function($scope) {
+    $scope.initialIndex = app.navigator.getCurrentPage().options.initialIndex;
   })
 
   .factory('$geolocation', function($q) {
@@ -82,5 +109,11 @@
     }; 
 
     return this;
+  })
+
+  .filter('kelvinToCelsius', function() {
+    return function(kelvin) {
+      return parseFloat(kelvin) - 273.15;
+    };
   });
 })();

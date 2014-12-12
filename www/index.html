@@ -1,26 +1,68 @@
 <html ng-app="app">
     <head>
-        <meta charset="utf-8" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="msapplication-tap-highlight" content="no" />
-        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/onsen-css-components.css" />
-        <link rel="stylesheet" type="text/css" href="css/onsenui.css" />
-        <title>Onsen Weather</title>
+      <meta charset="utf-8" />
+      <meta name="format-detection" content="telephone=no" />
+      <meta name="msapplication-tap-highlight" content="no" />
+      <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+      <link rel="stylesheet" type="text/css" href="css/onsen-css-components.css" />
+      <link rel="stylesheet" type="text/css" href="css/onsenui.css" />
+      <title>Onsen Weather</title>
     </head>
-    <body>
-        <ons-page ng-controller="WeatherController">
+    <body ng-controller="AppController">
+    <ons-navigator var="app.navigator">
+        <ons-page ng-controller="SearchController">
           <ons-toolbar>
-            <div class="center">Hi :)</div>
+            <div class="center">{{ title }}</div>
           </ons-toolbar>
-         
-          <input type="text" ng-model="query"> 
-          <p>{{ city }}</p>
+
+          <input type="search" placeholder="Search location" class="search-input" ng-model="query"> 
+
+          <p style="text-align: center;">
+            <ons-button
+              ng-show="place" 
+              ng-click="addPlace(place)">Add {{ place.name }}</ons-button>
+
+            <span ng-hide="place">No result found.</span>
+          </p>
+  
+          <div ng-show="places.length > 0">
+            <h3>Places added:</h3>
+            <ons-list>
+              <ons-list-item ng-click="app.navigator.pushPage('weather.html', {initialIndex: $index})" modifier="chevron" ng-repeat="place in places">
+              {{ place.name }}, {{ place.sys.country }}
+              </ons-list-item>
+            </ons-list>
+          </div>
         </ons-page>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/angular.js"></script>
-        <script type="text/javascript" src="js/onsenui.js"></script>
-        <script type="text/javascript" src="js/app.js"></script>
+      </ons-navigator>
+
+      <ons-template id="weather.html">
+        <ons-toolbar>
+          <div class="left">
+            <ons-back-button>Back</ons-back-button>
+          </div>
+          <div class="center">{{ title }}</div>
+        </ons-toolbar>
+
+        <ons-carousel ng-controller="WeatherController" initial-index="{{ initialIndex }}" swipeable overscrollable auto-scroll fullscreen>
+          <ons-carousel-item ng-repeat="place in places">
+          <h3>Weather in {{place.name}}</h3>
+            <ons-list>
+              <ons-list-item>
+                <img style="float: left;" ng-src="http://openweathermap.org/img/w/{{ place.weather[0].icon }}.png"> 
+                <span style="float: right;">
+                  {{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C
+                </span>
+              </ons-list-item>
+            </ons-list>
+          </ons-carousel-item>
+        </ons-carousel>
+
+      </ons-template>
+
+      <script type="text/javascript" src="cordova.js"></script>
+      <script type="text/javascript" src="js/angular.js"></script>
+      <script type="text/javascript" src="js/onsenui.js"></script>
+      <script type="text/javascript" src="js/app.js"></script>
     </body>
 </html>
