@@ -20,7 +20,7 @@
           <p style="text-align: center;">
             <ons-button
               ng-show="place" 
-              ng-click="addPlace(place)">Add {{ place.name }}</ons-button>
+              ng-click="addPlace(place)">Add {{ place.name }}, {{ place.sys.country }}</ons-button>
 
             <span ng-hide="place">No result found.</span>
           </p>
