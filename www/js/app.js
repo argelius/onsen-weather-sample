@@ -3,51 +3,19 @@
 
   angular.module('app', ['onsen'])
 
-  .controller('AppController', function($scope, $window) {
-    $scope.title = 'Onsen Weather';
+  .controller('WeatherController', function($scope, $geolocation) {
+    $scope.getWeather = function() {
 
-    $scope.currentIndex = 0;
-    $scope.places = angular.fromJson($window.localStorage.getItem('places') || '[]');
-  })
-
-  .controller('SearchController', function($scope, $timeout, $window, $geolocation, $weather) {
-
-    $scope.$watch('query', function(query) {
-      if ($scope.searchTimeout) {
-        $timeout.cancel($scope.searchTimeout);
-      }
-
-      $scope.searchTimeout = $timeout(function() {
-        (function(query) {
-          $weather.search(query).then(
-            function(data) {
-              $scope.place = data;
-              $scope.place._originalQuery = query;
-            },
-            function(error) {
-            }
-          );
-        })($scope.query);
-      }, 200);
-    });
-
-    $scope.addPlace = function(place) {
-      for (var i = 0; i < $scope.places.length; i++) {
-        if (place.id === $scope.places[i].id) {
-          ons.notification.alert({
-            message: place.name + ' already added.'
-          });
-          return;
-        }
-      }
-
-      $scope.places.push(place);
-      $window.localStorage.setItem('places', angular.toJson($scope.places));
     };
-  })
 
-  .controller('WeatherController', function($scope) {
-    $scope.initialIndex = app.navigator.getCurrentPage().options.initialIndex;
+    $scope.updateLocalWeather = function() {
+      $geolocation.get().then(
+        function(position) {
+        }
+      );
+    };
+
+    $scope.updateLocalWeather();
   })
 
   .factory('$geolocation', function($q) {

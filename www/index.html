@@ -8,57 +8,25 @@
       <link rel="stylesheet" type="text/css" href="css/onsenui.css" />
       <title>Onsen Weather</title>
     </head>
-    <body ng-controller="AppController">
-    <ons-navigator var="app.navigator">
-        <ons-page ng-controller="SearchController">
-          <ons-toolbar>
-            <div class="center">{{ title }}</div>
-          </ons-toolbar>
-
-          <input type="search" placeholder="Search location" class="search-input" ng-model="query"> 
-
-          <p style="text-align: center;">
-            <ons-button
-              ng-show="place" 
-              ng-click="addPlace(place)">Add {{ place.name }}, {{ place.sys.country }}</ons-button>
-
-            <span ng-hide="place">No result found.</span>
-          </p>
-  
-          <div ng-show="places.length > 0">
-            <h3>Places added:</h3>
-            <ons-list>
-              <ons-list-item ng-click="app.navigator.pushPage('weather.html', {initialIndex: $index})" modifier="chevron" ng-repeat="place in places">
-              {{ place.name }}, {{ place.sys.country }}
-              </ons-list-item>
-            </ons-list>
-          </div>
-        </ons-page>
-      </ons-navigator>
-
-      <ons-template id="weather.html">
+    <body>
+      <ons-page>
         <ons-toolbar>
-          <div class="left">
-            <ons-back-button>Back</ons-back-button>
-          </div>
-          <div class="center">{{ title }}</div>
+          <div class="center">Onsen Weather</div>
         </ons-toolbar>
-
         <ons-carousel ng-controller="WeatherController" initial-index="{{ initialIndex }}" swipeable overscrollable auto-scroll fullscreen>
-          <ons-carousel-item ng-repeat="place in places">
-          <h3>Weather in {{place.name}}</h3>
+          <ons-carousel-item ng-repeat="place in getWeather()">
+            <h3>Weather in {{place.name}}</h3>
             <ons-list>
               <ons-list-item>
                 <img style="float: left;" ng-src="http://openweathermap.org/img/w/{{ place.weather[0].icon }}.png"> 
                 <span style="float: right;">
-                  {{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C
+                {{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C
                 </span>
               </ons-list-item>
             </ons-list>
           </ons-carousel-item>
         </ons-carousel>
-
-      </ons-template>
+      </ons-page>
 
       <script type="text/javascript" src="cordova.js"></script>
       <script type="text/javascript" src="js/angular.js"></script>
