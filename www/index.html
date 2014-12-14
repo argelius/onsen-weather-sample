@@ -7,26 +7,85 @@
       <link rel="stylesheet" type="text/css" href="css/onsen-css-components.css" />
       <link rel="stylesheet" type="text/css" href="css/onsenui.css" />
       <title>Onsen Weather</title>
+      <style>
+        .ion-weather {
+          background-repeat: no-repeat;
+          height: 30px;
+          background-size: 40px 40px;
+        }
+        .popover__content {
+          padding: 0 10px 0 10px;
+        }
+        .page__content {
+          padding: 0 10px 0 10px;
+        }
+      </style>
     </head>
-    <body>
+    <body ng-controller="WeatherController">
       <ons-page>
         <ons-toolbar>
           <div class="center">Onsen Weather</div>
+          <div class="right">
+            <ons-toolbar-button ng-click="menu.show($event)">
+              <ons-icon icon="ion-navicon"></ons-icon>
+            </ons-toolbar-button>
+          </div>
         </ons-toolbar>
-        <ons-carousel ng-controller="WeatherController" initial-index="{{ initialIndex }}" swipeable overscrollable auto-scroll fullscreen>
-          <ons-carousel-item ng-repeat="place in getWeather()">
-            <h3>Weather in {{place.name}}</h3>
+        <ons-carousel var="app.carousel" swipeable overscrollable auto-scroll fullscreen>
+          <ons-carousel-item ng-repeat="place in [localWeather].concat(places)">
+            <span style="text-align: center;">
+              <h2>{{ place.name }}, {{ place.sys.country }}</h2>
+              <h2>{{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C</h2>
+            </span>
             <ons-list>
               <ons-list-item>
-                <img style="float: left;" ng-src="http://openweathermap.org/img/w/{{ place.weather[0].icon }}.png"> 
-                <span style="float: right;">
-                {{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C
-                </span>
+                <ons-icon icon="ion-weather" size="30px" fixed-width="true"
+                  style="background-image: url('http://openweathermap.org/img/w/{{ place.weather[0].icon }}.png');">
+                </ons-icon>
+                {{ place.weather[0].description }}
+              </ons-list-item>
+              <ons-list-item>
+                <ons-icon icon="ion-thermometer" size="30px" fixed-width="true"></ons-icon>
+                {{ place.main.temp_max | kelvinToCelsius | number:1 }}&deg;C /
+                {{ place.main.temp_min | kelvinToCelsius | number:1 }}&deg;C
+              </ons-list-item>
+              <ons-list-item>
+                <ons-icon icon="ion-waterdrop" size="30px" fixed-width="true"></ons-icon>
+                Humidity is {{ place.main.humidity }}%
+              </ons-list-item>
+              <ons-list-item>
+                Wind speed is {{ place.wind.speed }} m/s
+              </ons-list-item>
+              <ons-list-item ng-if="$index == 0">
+                This is your current position.
               </ons-list-item>
             </ons-list>
           </ons-carousel-item>
         </ons-carousel>
       </ons-page>
+
+      <ons-template id="menu.html">
+        <ons-popover ng-controller="MenuController" direction="down" cancelable>
+          <h4>Add another city</h4>
+          <p>
+          <input type="search" ng-model="query" class="search-input">
+          <span ng-show="result">
+            {{ result.name }}, {{ result.sys.country }} 
+          </span>
+          </p>
+          <p style="text-align: center;">
+            <ons-button var="app.searchButton" ng-click="search()">Add</ons-button>
+          </p>
+          <h4 ng-show="places.length > 0">Cities</h4>
+          <p ng-repeat="place in places">
+          <span 
+            ng-click="app.carousel.setActiveCarouselItemIndex($index + 1)" 
+            style="float: left;">{{ place.name }}, {{ place.sys.country }}</span>
+          <span ng-click="removePlace($index)" style="float: right;">&#215;</span>
+          </p>
+          </ons-list>
+        </ons-popover>
+      </ons-template>
 
       <script type="text/javascript" src="cordova.js"></script>
       <script type="text/javascript" src="js/angular.js"></script>
