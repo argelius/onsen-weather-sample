@@ -4,6 +4,8 @@
   angular.module('app', ['onsen'])
 
   .controller('WeatherController', function($scope, $window, $geolocation, $weather, $interval) {
+    
+    // Create popover when Onsen is loaded.
     ons.ready(function() {
       ons.createPopover('menu.html').then(
         function(popover) {
@@ -12,7 +14,28 @@
       );
     });
 
+    // Load saved cities from Local Storage.
     $scope.places = angular.fromJson($window.localStorage.getItem('places') || '[]');
+
+    $scope.addPlace = function(place) {
+      $scope.places.push(place);
+      $window.localStorage.setItem('places', angular.toJson($scope.places));
+
+      setImmediate(function() {
+        app.carousel.refresh();
+        app.carousel.setActiveCarouselItemIndex($scope.places.length + 1);
+      });
+    };
+
+    $scope.removePlace = function(index) {
+      $scope.places.splice(index, 1);
+
+      $window.localStorage.setItem('places', angular.toJson($scope.places));
+
+      setImmediate(function() {
+        app.carousel.refresh();
+      });
+    };
 
     $scope.updateLocalWeather = function() {
       $geolocation.get().then(
@@ -29,24 +52,25 @@
         }
       );
     };
-    $scope.updateLocalWeather();
 
     $scope.updateWeather = function() {
       $scope.updateLocalWeather();
 
-      for (var i = 0, l = $scope.places.length; i < l; i ++) {
-        var place = $scope.places[i];
+      var updatePlace = function(place, i) {
+        $weather.byCityId(place.id).then(
+          function(result) {
+            $scope.places[i] = result;
+          }
+        );
+      };
 
-        (function(i) {
-          $weather.byCityId(place.id).then(
-            function(result) {
-              $scope.places[i] = result;
-            }
-          );
-        })(i);
+      for (var i = 0, l = $scope.places.length; i < l; i ++) {
+        updatePlace($scope.places[i], i);
       }
     };
 
+    $scope.updateLocalWeather();
+    
     // Update weather every minute.
     $interval($scope.updateWeather, 60000);
   })
@@ -67,15 +91,8 @@
             }
           }
 
-          $scope.places.push(result);
-          $window.localStorage.setItem('places', angular.toJson($scope.places));
-
+          $scope.addPlace(result);
           $scope.menu.hide();
-
-          setImmediate(function() {
-            app.carousel.refresh();
-            app.carousel.setActiveCarouselItemIndex($scope.places.length + 1);
-          });
         },
         function() {
           ons.notification.alert({
@@ -90,15 +107,6 @@
       );
     };
     
-    $scope.removePlace = function(index) {
-      $scope.places.splice(index, 1);
-
-      $window.localStorage.setItem('places', angular.toJson($scope.places));
-
-      setImmediate(function() {
-        app.carousel.refresh();
-      });
-    };
   })
 
   .factory('$geolocation', function($q) {

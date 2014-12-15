@@ -27,39 +27,46 @@
           <div class="center">Onsen Weather</div>
           <div class="right">
             <ons-toolbar-button ng-click="menu.show($event)">
-              <ons-icon icon="ion-navicon"></ons-icon>
+              <ons-icon icon="plus"></ons-icon>
             </ons-toolbar-button>
           </div>
         </ons-toolbar>
         <ons-carousel var="app.carousel" swipeable overscrollable auto-scroll fullscreen>
           <ons-carousel-item ng-repeat="place in [localWeather].concat(places)">
-            <span style="text-align: center;">
-              <h2>{{ place.name }}, {{ place.sys.country }}</h2>
-              <h2>{{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C</h2>
-            </span>
-            <ons-list>
-              <ons-list-item>
-                <ons-icon icon="ion-weather" size="30px" fixed-width="true"
-                  style="background-image: url('http://openweathermap.org/img/w/{{ place.weather[0].icon }}.png');">
-                </ons-icon>
-                {{ place.weather[0].description }}
-              </ons-list-item>
-              <ons-list-item>
-                <ons-icon icon="ion-thermometer" size="30px" fixed-width="true"></ons-icon>
-                {{ place.main.temp_max | kelvinToCelsius | number:1 }}&deg;C /
-                {{ place.main.temp_min | kelvinToCelsius | number:1 }}&deg;C
-              </ons-list-item>
-              <ons-list-item>
-                <ons-icon icon="ion-waterdrop" size="30px" fixed-width="true"></ons-icon>
-                Humidity is {{ place.main.humidity }}%
-              </ons-list-item>
-              <ons-list-item>
-                Wind speed is {{ place.wind.speed }} m/s
-              </ons-list-item>
-              <ons-list-item ng-if="$index == 0">
-                This is your current position.
-              </ons-list-item>
-            </ons-list>
+            <div ng-show="!!place">
+              <span style="text-align: center;">
+                <h2>{{ place.name }}, {{ place.sys.country }}</h2>
+                <h2>{{ place.main.temp | kelvinToCelsius | number:1 }}&deg;C</h2>
+              </span>
+              <ons-list>
+                <ons-list-item>
+                  <ons-icon icon="ion-weather" size="30px" fixed-width="true"
+                    style="background-image: url('http://openweathermap.org/img/w/{{ place.weather[0].icon }}.png');">
+                  </ons-icon>
+                  {{ place.weather[0].description }}
+                </ons-list-item>
+                <ons-list-item>
+                  <ons-icon icon="ion-thermometer" size="30px" fixed-width="true"></ons-icon>
+                  {{ place.main.temp_max | kelvinToCelsius | number:1 }}&deg;C /
+                  {{ place.main.temp_min | kelvinToCelsius | number:1 }}&deg;C
+                </ons-list-item>
+                <ons-list-item>
+                  <ons-icon icon="ion-waterdrop" size="30px" fixed-width="true"></ons-icon>
+                  Humidity is {{ place.main.humidity }}%
+                </ons-list-item>
+                <ons-list-item>
+                  Wind speed is {{ place.wind.speed }} m/s
+                </ons-list-item>
+                <ons-list-item ng-if="$index == 0">
+                  This is your current position.
+                </ons-list-item>
+              </ons-list>
+            </div>
+            <div ng-show="!place">
+              <span style="text-align: center;">
+                <h2>Loading...</h2>
+              </span>
+            </div>
           </ons-carousel-item>
         </ons-carousel>
       </ons-page>
