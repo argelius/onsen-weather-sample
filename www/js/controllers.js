@@ -1,3 +1,5 @@
+// controllers.js
+
 (function() {
   'use strict';
 
@@ -5,7 +7,7 @@
 
   .controller('WeatherController', function($scope, $window, $geolocation, $weather, $interval) {
 
-    // Create popover when Onsen is loaded.
+    // Create popover when Onsen UI is loaded.
     ons.ready(function() {
       ons.createPopover('menu.html').then(
         function(popover) {
@@ -17,6 +19,7 @@
     // Load saved cities from Local Storage.
     $scope.places = angular.fromJson($window.localStorage.getItem('places') || '[]');
 
+    // Add a new place and and refresh carousel.
     $scope.addPlace = function(place) {
       $scope.places.push(place);
       $window.localStorage.setItem('places', angular.toJson($scope.places));
@@ -27,9 +30,9 @@
       });
     };
 
+    // Remove place and refresh carousel. 
     $scope.removePlace = function(index) {
       $scope.places.splice(index, 1);
-
       $window.localStorage.setItem('places', angular.toJson($scope.places));
 
       setImmediate(function() {
@@ -37,6 +40,7 @@
       });
     };
 
+    // Update local weather and refresh carousel. 
     $scope.updateLocalWeather = function() {
       $geolocation.get().then(
         function(position) {
@@ -52,22 +56,23 @@
       );
     };
 
+    //  Update weather for all saved places.
     $scope.updateWeather = function() {
       $scope.updateLocalWeather();
 
       var updatePlace = function(place, i) {
+        // Search by City ID.
         $weather.byCityId(place.id).then(
           function(result) {
             $scope.places[i] = result;
           }
         );
       };
-
       for (var i = 0, l = $scope.places.length; i < l; i ++) {
         updatePlace($scope.places[i], i);
       }
     };
-
+    // Update local weather when app starts.
     $scope.updateLocalWeather();
     
     // Update weather every minute.
@@ -75,11 +80,14 @@
   })
 
   .controller('MenuController', function($scope, $weather, $window) {
+
+    // Search for a place and add it.
     $scope.search = function() {
       app.searchButton.startSpin();
 
       $weather.byCityName($scope.query).then(
         function(result) {
+          // Don't add place if it's already added.
           for (var i = 0, l = $scope.places.length; i < l; i ++) {
             var place = $scope.places[i];
             if (place.id === result.id) {
@@ -89,11 +97,11 @@
               return;
             }
           }
-
           $scope.addPlace(result);
           $scope.menu.hide();
         },
         function() {
+          // Search failed.
           ons.notification.alert({
             message: 'Unable to find city.'
           });
