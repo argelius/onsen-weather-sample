@@ -42,7 +42,6 @@
         function(position) {
           $weather.byLocation(position.coords).then(
             function(weather) {
-              console.log(weather);
               $scope.localWeather = weather;
               setImmediate(function() {
                 app.carousel.refresh();
